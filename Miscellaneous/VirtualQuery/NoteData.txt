@@ -1,0 +1,5 @@
+9800 ; 5.5", Super AMOLED, 2560x1440, Exynos 8890 Octa (Quad 2.3 GHz + Quad 1.6 GHz)/ Camera: 12 Mpx + Front Camera 5 Mpx/ RAM 4 Gb/ 32 Gb + microSD (up to 200 Gb)/ 3G/ LTE/ GPS/ support 2 SIM-card (Nano-SIM)/ Android 6.0 (Marshmallow) 
+9830 ; 5.7", Super AMOLED, 2560x1440, Samsung Exynos 7420 (Quad 1.5 GHz + Quad 2.1 GHz)/ Camera: 16 Mpx, Front Camera: 5 Mpx/ RAM 4 Gb/ 32 Gb  3G/ LTE/ GPS/Nano-SIM/ Android 5.1 (Lollipop)
+1001 ; 4.7", IPS, 1334x750, Apple A8 (1.4 GHz)/ Camera: 8 Mpx, Front Camera: 1.2 Mpx/ RAM 1 Gb/ 16 Gb / 3G/ LTE/ GPS/ Nano-SIM/ iOS 9
+1356 ; 5.5", IPS, 1920x1080, 401ppi, Multi-Touch, Apple A8 64bit + M8 motion, Camera: 8 Mpx, Front Camera: 1.2 Mpx, RAM 1 Gb/ 16 Gb, Foto 3264x2448, Video FullHD 1080p, Wi-Fi (802.11 a/b/g/n/ac), Bluetooth 4.0 (A2DP), NFC, Nano-SIM/ iOS 9
+3582 ; 5.7", AMOLED, 2560x1440, Qualcomm Snapdragon 810 (2.0 GHz)/ Camera: 20 Mpx, Front Camera: 5 Mpx/ RAM 3 Gb/ 32 Gb + microSD/SDHC (up to 200 Gb)/ 3G/ LTE/ GPS/ support 2õ SIM (Nano-SIM)/ Windows 10 Mobile
