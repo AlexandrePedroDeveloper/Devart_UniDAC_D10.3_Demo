@@ -29,7 +29,7 @@ uses
   DB2UniProvider,
   AccessUniProvider,
   AdvantageUniProvider,
-  ASEUniProvider, System.ImageList
+  ASEUniProvider
 {$ENDIF}
 {$ELSE}
   System.ComponentModel,

@@ -1,9 +1,13 @@
 unit CRSSLIOHandler;
 
+{$IFDEF FPC}
+  {$mode delphi}
+{$ENDIF}
+
 interface
 
 uses
-  SysUtils, Classes, ScVio, ScBridge,
+  SysUtils, Classes, ScVio,
 {$IFNDEF SBRIDGE}
   CRVio, CRTypes, CRFunctions,
 {$ELSE}
@@ -12,7 +16,9 @@ uses
 {$IFDEF MSWINDOWS}
   ScCryptoAPIStorage,
 {$ENDIF}
-  ScSSLTypes, ScSSLClient, ScUtils;
+  ScSSLTypes, ScUtils, ScSSLClient, ScBridge;
+
+{$I SecureBridgeVer.inc}
 
 type
 {$IFDEF VER16P}
@@ -38,6 +44,8 @@ type
     procedure SetCipherSuites(Value: TScSSLCipherSuites);
     procedure SetStorage(Value: TScStorage);
     procedure SetSecurityOptions(Value: TScSSLSecurityOptions);
+    procedure DoValidateServerCertDN(Sender: TObject;
+      ServerCertificate: TScCertificate; CertificateList: TCRList; var Errors: TScCertificateStatusSet);
     procedure DoServerCertificateValidation(Sender: TObject;
       ServerCertificate: TScCertificate; CertificateList: TCRList; var Errors: TScCertificateStatusSet);
 
@@ -57,6 +65,7 @@ type
       SSLOptions: TSSLOptions; SSHOptions: TSSHOptions;
       IPVersion: TIPVersion = ivIPv4): TCRIOHandle; override;
     procedure Disconnect(Handle: TCRIOHandle); override;
+
     class function ReadNoWait(Handle: TCRIOHandle; const buffer: TValueArr; offset, count: integer): integer; override;
     class function Read(Handle: TCRIOHandle; const buffer: TValueArr; offset, count: integer): integer; override;
     class function Write(Handle: TCRIOHandle; const buffer: TValueArr; offset, count: integer): integer; override;
@@ -90,7 +99,15 @@ type
 implementation
 
 uses
-  ScConsts{$IFNDEF SBRIDGE}{$IFNDEF ODBC_DRIVER}, CRAccess{$ENDIF}{$ENDIF};
+{$IFNDEF ODBC_DRIVER}
+{$IFNDEF SBRIDGE}
+  CRAccess,
+{$ENDIF}
+  CRSsoStorage,
+{$ELSE}
+  ODBC_SsoStorage,
+{$ENDIF}
+  ScConsts;
 
 { TCRSSLIOHandler }
 
@@ -167,6 +184,33 @@ function TCRSSLIOHandler.Connect(const Server: string; const Port: integer;
   HttpOptions: THttpOptions; ProxyOptions: TProxyOptions;
   SSLOptions: TSSLOptions; SSHOptions: TSSHOptions;
   IPVersion: TIPVersion = ivIPv4): TCRIOHandle;
+
+{$IFDEF ODBC_DRIVER}
+  function CreateSsoFileStorage(const WalletPath: string; SSLClient: TScSSLClient): TCRSsoFileStorage;
+  begin
+    Result := TCRSsoFileStorage.Create(SSLClient);
+    try
+      Result.SetFullWalletPath(WalletPath);
+    except
+      Result.Free;
+      raise;
+    end;
+  end;
+
+{$IFDEF MSWINDOWS}
+  function CreateSsoRegStorage(const WalletReg: string; SSLClient: TScSSLClient): TCRSsoRegStorage;
+  begin
+    Result := TCRSsoRegStorage.Create(SSLClient);
+    try
+      Result.SetFullWalletRegPath(WalletReg);
+    except
+      Result.Free;
+      raise;
+    end;
+  end;
+{$ENDIF}
+{$ENDIF}
+
 var
   SSLClient: TScSSLClient;
   Cert: TScCertificate;
@@ -195,8 +239,22 @@ begin
     SSLClient.SecurityOptions.IgnoreServerCertificateInsecurity := SSLOptions.IgnoreServerCertificateInsecurity; //RDS
     SSLClient.SecurityOptions.TrustServerCertificate := SSLOptions.TrustServerCertificate;
   {$ENDIF}
+  {$IFDEF SB_DEMO_VER2}
+    SSLClient.SecurityOptions.TrustSelfSignedCertificate := SSLOptions.TrustSelfSignedCertificate;
+  {$ENDIF}
     SSLClient.SecurityOptions.IdentityDNSName := SSLOptions.IdentityDNSName;
+    SSLClient.SecurityOptions.ServerCertDN := SSLOptions.ServerCertDN;
 
+  {$IFDEF ODBC_DRIVER}
+    if SSLOptions.WalletPath <> '' then
+      SSLClient.Storage := CreateSsoFileStorage(SSLOptions.WalletPath, SSLClient)
+    else
+  {$IFDEF MSWINDOWS}
+    if SSLOptions.WalletReg <> '' then
+      SSLClient.Storage := CreateSsoRegStorage(SSLOptions.WalletReg, SSLClient)
+    else
+  {$ENDIF}
+  {$ENDIF}
     if Storage <> nil then begin
       SSLClient.Storage := Storage;
       SSLClient.CACertName := CACertName;
@@ -229,7 +287,7 @@ begin
       SSLClient.SecurityOptions.IgnoreServerCertificateInsecurity := True; //RDS
 
     SSLClient.IPVersion := ScVio.TIPVersion(IPVersion);
-    SSLClient.OnServerCertificateValidation := {$IFDEF FPC}@{$ENDIF}DoServerCertificateValidation;
+    SSLClient.OnServerCertificateValidation := DoServerCertificateValidation;
     SSLClient.Connect;
   except
     SSLClient.Free;
@@ -389,9 +447,82 @@ begin
   FSecurityOptions.Assign(Value);
 end;
 
+procedure TCRSSLIOHandler.DoValidateServerCertDN(Sender: TObject;
+  ServerCertificate: TScCertificate; CertificateList: TCRList; var Errors: TScCertificateStatusSet);
+var
+  i: Integer;
+  SSLClient: TScSSLClient;
+  RemoteCertDN: string;
+  ServerCertDN: string;
+  RemoteCertDNList: TStringList;
+  ServerCertDNList: TStringList;
+  RemoteAttr: string;
+  ServerAttr: string;
+begin
+  SSLClient := Sender as TScSSLClient;
+
+  ServerCertDN := SSLClient.SecurityOptions.ServerCertDN;
+  if ServerCertDN = '' then
+    Exit;
+
+  if ServerCertificate = nil then begin
+    Errors := Errors + [csInvalidSubjectName];
+    Exit;
+  end;
+
+  if CertificateList = nil then begin
+    Errors := Errors + [csUnknownCriticalExtension];
+    Exit;
+  end;
+
+  RemoteCertDNList := TStringList.Create;
+  try
+    RemoteCertDN := ServerCertificate.SubjectName.ToString;
+    RemoteCertDN := StringReplace(RemoteCertDN, ';', #13, [rfReplaceAll]);
+    RemoteCertDNList.Text := RemoteCertDN;
+    for i := 0 to RemoteCertDNList.Count - 1 do begin
+      RemoteAttr := Trim(RemoteCertDNList.Strings[i]);
+      RemoteCertDNList.Strings[i] := RemoteAttr;
+    end;
+    RemoteCertDNList.Sort;
+
+    ServerCertDNList := TStringList.Create;
+    try
+      ServerCertDN := StringReplace(ServerCertDN, ',', #13, [rfReplaceAll]);
+      ServerCertDNList.Text := ServerCertDN;
+      for i := 0 to ServerCertDNList.Count - 1 do begin
+        ServerAttr := Trim(ServerCertDNList.Strings[i]);
+        ServerAttr := StringReplace(ServerAttr, 'ST=', 'S=', []);
+        ServerCertDNList.Strings[i] := ServerAttr;
+      end;
+      ServerCertDNList.Sort;
+
+      if RemoteCertDNList.Count <> ServerCertDNList.Count then begin
+        Errors := Errors + [csInvalidSubjectName];
+        Exit;
+      end;
+
+      for i := 0 to ServerCertDNList.Count - 1 do begin
+        RemoteAttr := RemoteCertDNList.Strings[i];
+        ServerAttr := ServerCertDNList.Strings[i];
+        if RemoteAttr <> ServerAttr then begin
+          Errors := Errors + [csInvalidSubjectName];
+          Exit;
+        end;
+      end;
+    finally
+      ServerCertDNList.Free;
+    end;
+  finally
+    RemoteCertDNList.Free;
+  end;
+end;
+
 procedure TCRSSLIOHandler.DoServerCertificateValidation(Sender: TObject;
   ServerCertificate: TScCertificate; CertificateList: TCRList; var Errors: TScCertificateStatusSet);
 begin
+  DoValidateServerCertDN(Sender, ServerCertificate, CertificateList, Errors);
+
   if Assigned(FOnServerCertificateValidation) then
     FOnServerCertificateValidation(Self, ServerCertificate, CertificateList, Errors);
 end;

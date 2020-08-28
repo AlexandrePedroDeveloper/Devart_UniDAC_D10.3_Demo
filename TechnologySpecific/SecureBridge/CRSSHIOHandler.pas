@@ -1,9 +1,17 @@
 unit CRSSHIOHandler;
 
+{$IFDEF FPC}
+  {$mode delphi}
+{$ENDIF}
+
 interface
 
 uses
-  SysUtils, Classes, ScTypes, MemUtils, ScVio, {$IFNDEF SBRIDGE}CRVio, {$ENDIF}ScSSHClient, ScSSHChannel;
+  Types, SysUtils, Classes, ScTypes, MemUtils,
+  ScVio, {$IFNDEF SBRIDGE}CRVio, {$ENDIF}
+  ScBridge, ScSSHClient, ScSSHChannel;
+
+{$I SecureBridgeVer.inc}
 
 type
 {$IFDEF VER16P}
@@ -20,6 +28,12 @@ type
     procedure Notification(Component: TComponent; Operation: TOperation); override;
     function GetHandlerType: string; override;
 
+    procedure DoServerKeyValidate(Sender: TObject;
+      NewServerKey: TScKey; var Accept: Boolean);
+    procedure DoAuthenticationPrompt(Sender: TObject;
+      const Name, Instruction: string; const Prompts: TStringDynArray;
+      var Responses: TStringDynArray);
+
   public
     destructor Destroy; override;
 
@@ -28,6 +42,7 @@ type
       SSLOptions: TSSLOptions; SSHOptions: TSSHOptions;
       IPVersion: TIPVersion = ivIPv4): TCRIOHandle; override;
     procedure Disconnect(Handle: TCRIOHandle); override;
+
     class function ReadNoWait(Handle: TCRIOHandle; const buffer: TValueArr; offset, count: integer): integer; override;
     class function Read(Handle: TCRIOHandle; const buffer: TValueArr; offset, count: integer): integer; override;
     class function Write(Handle: TCRIOHandle; const buffer: TValueArr; offset, count: integer): integer; override;
@@ -43,7 +58,11 @@ type
 implementation
 
 uses
-  ScConsts, ScUtils, CRAccess, DBAccess, CRFunctions;
+  ScConsts, ScUtils, CRAccess, DBAccess, CRFunctions,
+  ScSSHUtils;
+
+const
+  KEY_GUID = '861690563F1B';
 
 { TCRSSHIOHandler }
 
@@ -84,7 +103,23 @@ begin
   if FClient = nil then
     raise EScError.Create(SClientNotDefined);
 
-  FClient.Connect;
+  if not Assigned(FClient.OnServerKeyValidate) then
+    FClient.OnServerKeyValidate := DoServerKeyValidate;
+  if not Assigned(FClient.OnAuthenticationPrompt) then
+    FClient.OnAuthenticationPrompt := DoAuthenticationPrompt;
+
+  try
+    FClient.Connect;
+  except
+    on E: EScError do begin
+      if (FClient.Authentication = atPassword) and (E.ErrorCode = seAuthenticationFailed) then begin
+        FClient.Authentication := atKeyboardInteractive;
+        FClient.Connect;
+      end
+      else
+        raise;
+    end;
+  end;
 end;
 
 function TCRSSHIOHandler.Connect(const Server: string; const Port: integer;
@@ -94,6 +129,10 @@ function TCRSSHIOHandler.Connect(const Server: string; const Port: integer;
 var
   Channel: TScSSHChannel;
 begin
+  // set default Username for Oracle
+  if (SSHOptions <> nil) and (Client.User = '') then
+    Client.User := SSHOptions.Username;
+
   CheckClient;
 
   Channel := TScSSHChannel.Create(Self);
@@ -197,7 +236,7 @@ begin
     FClient := Value;
 
     if Value <> nil then begin
-      TScClientUtils.RegisterClient(Value, Self, {$IFDEF FPC}@{$ENDIF}ConnectChange);
+      TScClientUtils.RegisterClient(Value, Self, ConnectChange);
       Value.FreeNotification(Self);
     end;
   end;
@@ -216,6 +255,42 @@ begin
           Conn.Disconnect;
       end;
     end;
+end;
+
+procedure TCRSSHIOHandler.DoAuthenticationPrompt(Sender: TObject;
+  const Name, Instruction: string; const Prompts: TStringDynArray;
+  var Responses: TStringDynArray);
+begin
+  if Length(Responses) > 0 then
+    Responses[0] := TScSSHClient(Sender).Password;
+end;
+
+procedure TCRSSHIOHandler.DoServerKeyValidate(Sender: TObject;
+  NewServerKey: TScKey; var Accept: Boolean);
+var
+  HostKeyName: string;
+  Key: TScKey;
+begin
+  if TScSSHClient(Sender).HostKeyName = '' then begin
+    HostKeyName := TScSSHClient(Sender).HostName + KEY_GUID;
+    Key := TScSSHClient(Sender).KeyStorage.Keys.FindKey(HostKeyName);
+
+    if Key = nil then begin
+      Key := TScKey.Create(nil);
+      try
+        Key.Assign(NewServerKey);
+        Key.KeyName := HostKeyName;
+        TScSSHClient(Sender).KeyStorage.Keys.Add(Key);
+      except
+        Key.Free;
+        raise;
+      end;
+
+      Accept := True;
+    end
+    else
+      Accept := Key.Equals(NewServerKey);
+  end;
 end;
 
 end.

@@ -27,17 +27,17 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <DCC_DcuOutput>$(DELPHI)\Lib\$(Platform)\$(Config)</DCC_DcuOutput>
-        <DCC_DcpOutput>$(DELPHI)\Lib\$(Platform)\$(Config)</DCC_DcpOutput>
+        <DCC_DcuOutput>.\Delphi26\$(Platform)\$(Config)</DCC_DcuOutput>
+        <DCC_DcpOutput></DCC_DcpOutput>
         <DCC_DependencyCheckOutputName>dcldacsbridge260.bpl</DCC_DependencyCheckOutputName>
         <DCC_ImageBase>00400000</DCC_ImageBase>
         <DesignOnlyPackage>true</DesignOnlyPackage>
-        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Winapi;System.Win;$(DCC_Namespace)</DCC_Namespace>
         <VerInfo_Build>1</VerInfo_Build>
         <VerInfo_Keys>CompanyName=Devart;FileDescription=;FileVersion=1.0.0.1;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=SecureBridge;ProductVersion=1.0.0.1</VerInfo_Keys>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <DCC_CBuilderOutput>All</DCC_CBuilderOutput>
-        <DCC_UnitSearchPath>..\;..\Design;$(DELPHI)\Lib\$(Platform)\$(Config);$(DELPHI)\source\ToolsAPI\;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\;.\Delphi26\$(Platform)\$(Config);..\Design;$(DELPHI)\Lib\$(Platform)\$(Config);$(DELPHI)\source\ToolsAPI\;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_ResourcePath>..\;..\Design;$(DELPHI)\source\ToolsAPI\;$(DCC_ResourcePath)</DCC_ResourcePath>
         <DCC_ObjPath>..\;..\Design;$(DELPHI)\source\ToolsAPI\;$(DCC_ObjPath)</DCC_ObjPath>
         <DCC_IncludePath>..\;..\Design;$(DELPHI)\source\ToolsAPI\;$(DCC_IncludePath)</DCC_IncludePath>

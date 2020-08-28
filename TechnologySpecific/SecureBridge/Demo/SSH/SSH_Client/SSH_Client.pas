@@ -1,14 +1,19 @@
 unit SSH_Client;
 
 {$I ..\..\Base\SBDemo.inc}
+{$I ..\..\Design\IdeVer.inc}
 interface
 
 uses
   Classes, SysUtils, DB,
-  Windows, Messages, Graphics, Controls, Forms, Dialogs,
+  {$IFDEF VER16P}
+  UITypes,
+  {$ENDIF}
+  Windows, Messages, Graphics, Controls, Forms, Dialogs, TypInfo,
   DBCtrls, ExtCtrls, Grids, DBGrids, StdCtrls, ToolWin, ComCtrls,
   Buttons, Spin, DemoFrame, MemDS, DBAccess, Uni, UniProvider,
   UniDacVcl, ScBridge, ScSSHClient, ScSSHChannel, CRSSHIOHandler, CRVio,
+  OraClassesUni, OraCallUni,
 {$IFNDEF CLR}
   OracleUniProvider,
   SQLServerUniProvider,
@@ -34,14 +39,14 @@ type
     Panel6: TPanel;
     Panel7: TPanel;
     Panel5: TPanel;
-    Label1: TLabel;
-    Label2: TLabel;
-    Label6: TLabel;
+    lbSSHConnection: TLabel;
+    lbDBConnection: TLabel;
+    lbSSHUserName: TLabel;
     edSSHUserName: TEdit;
-    Label7: TLabel;
+    lbSShPassword: TLabel;
     edSSHPassword: TEdit;
-    Label8: TLabel;
-    cbPrivateKey: TComboBox;
+    lbPrivateKey: TLabel;
+    cbSSHPrivateKey: TComboBox;
     pnPassword: TPanel;
     pnPrivateKey: TPanel;
     rbLocalPF: TRadioButton;
@@ -56,28 +61,28 @@ type
     UniConnection: TUniConnection;
     UniTable: TUniTable;
     DataSource: TDataSource;
-    Label4: TLabel;
-    Label5: TLabel;
+    lbSSHServer: TLabel;
+    lbSSHPort: TLabel;
     edSSHHost: TEdit;
     edSSHPort: TEdit;
     lbListenPort: TLabel;
-    Label10: TLabel;
+    lbDBServer: TLabel;
     edDBHost: TEdit;
-    Label11: TLabel;
-    Label12: TLabel;
+    lbDBPort: TLabel;
+    lbDBUserName: TLabel;
     edDBUserName: TEdit;
-    Label13: TLabel;
+    lbDBPassword: TLabel;
     edDBPassword: TEdit;
-    Label14: TLabel;
-    Label3: TLabel;
+    lbDatabase: TLabel;
+    lbAuthenticationKind: TLabel;
     rbPassword: TRadioButton;
     rbPublicKey: TRadioButton;
-    Panel12: TPanel;
+    pnGenerateKey: TPanel;
     btKeyGen: TSpeedButton;
     seDBPort: TSpinEdit;
     ScFileStorage: TScFileStorage;
     cbDBDatabase: TComboBox;
-    s: TPanel;
+    Panel10: TPanel;
     lbTableName: TLabel;
     cbTableName: TComboBox;
     Panel9: TPanel;
@@ -90,12 +95,21 @@ type
     cbRandomization: TCheckBox;
     lbProvider: TLabel;
     cbProvider: TComboBox;
+    lbSID: TLabel;
+    cbSID: TCheckBox;
+    edDBServiceName: TEdit;
+    cbConnectMode: TComboBox;
+    lbConnectMode: TLabel;
+    lbKeyPath: TLabel;
+    edSSHKeyPath: TEdit;
+    sbKeyPath: TSpeedButton;    
+    OpenDialog: TOpenDialog;
     procedure rbLocalPFClick(Sender: TObject);
     procedure rbDirectClick(Sender: TObject);
     procedure rbPasswordClick(Sender: TObject);
     procedure rbPublicKeyClick(Sender: TObject);
     procedure edSSHUserNameChange(Sender: TObject);
-    procedure cbPrivateKeyDropDown(Sender: TObject);
+    procedure cbSSHPrivateKeyDropDown(Sender: TObject);
     procedure btConnectDBClick(Sender: TObject);
     procedure btDisconnectDBClick(Sender: TObject);
     procedure btConnectSSHClick(Sender: TObject);
@@ -111,7 +125,7 @@ type
     procedure cbTableNameDropDown(Sender: TObject);
     procedure cbTableNameChange(Sender: TObject);
     procedure edListenPortChange(Sender: TObject);
-    procedure cbPrivateKeyChange(Sender: TObject);
+    procedure cbSSHPrivateKeyChange(Sender: TObject);
     procedure btKeyGenClick(Sender: TObject);
     procedure ScSSHClientServerKeyValidate(Sender: TObject;
       NewServerKey: TScKey; var Accept: Boolean);
@@ -119,12 +133,17 @@ type
     procedure cbDBDatabaseChange(Sender: TObject);
     procedure UniConnectionBeforeConnect(Sender: TObject);
     procedure ScSSHClientBeforeConnect(Sender: TObject);
+    procedure cbSIDClick(Sender: TObject);
+    procedure cbProviderChange(Sender: TObject);
+    procedure sbKeyPathClick(Sender: TObject);
+    procedure edSSHKeyPathChange(Sender: TObject);
   private
     procedure CheckRandomize;
     procedure ShowPasswordAuth(pa: boolean);
     procedure ShowSSHButtons;
     procedure ShowDBButtons;
     procedure EnableLPFComponents(Enabled: boolean);
+    procedure ChangeDatabaseControl(ProviderName: String);
   {$IFDEF MSWINDOWS}
     function LoadState: boolean;
     function SaveState: boolean;
@@ -156,6 +175,9 @@ uses
 {$ENDIF}
   ScSSHUtils, ScUtils, ScConsts, SSHDacDemoForm;
 
+const
+  SSHPrefix = 'ssh://';
+
 destructor TSSHClientFrame.Destroy;
 begin
   DisconnectAll;
@@ -166,6 +188,8 @@ procedure TSSHClientFrame.Initialize;
 begin
   inherited;
 
+  UniProviders.GetProviderNames(cbProvider.Items);
+
 {$IFDEF MSWINDOWS}
   LoadState;
 {$ENDIF}
@@ -174,7 +198,10 @@ begin
   edSSHHost.Text := ScSSHClient.HostName;
   edSSHPort.Text := IntToStr(ScSSHClient.Port);
   edSSHUserName.Text := ScSSHClient.User;
-  UniProviders.GetProviderNames(cbProvider.Items);
+  edSSHKeyPath.Text := ScFileStorage.Path;
+  if cbProvider.ItemIndex = -1 then
+    cbProvider.ItemIndex := 0;
+  ChangeDatabaseControl(cbProvider.Text);
 end;
 
 procedure TSSHClientFrame.Finalize;
@@ -253,6 +280,39 @@ begin
   seListenPort.Enabled := Enabled;
 end;
 
+procedure TSSHClientFrame.cbProviderChange(Sender: TObject);
+begin
+  UniConnection.Disconnect;
+  ScSSHChannel.Disconnect;
+  ChangeDatabaseControl(cbProvider.Text);
+end;
+
+procedure TSSHClientFrame.ChangeDatabaseControl(ProviderName: String);
+var
+  ThisIsOracle: Boolean;
+begin
+  ThisIsOracle := ProviderName = 'Oracle';
+  if ThisIsOracle then begin
+    lbDBUserName.Top := lbDBServer.Top + 78;
+    edDBUserName.Top := lbDBServer.Top + 74;
+    lbDBPassword.Top := lbDBServer.Top + 104;
+    edDBPassword.Top := lbDBServer.Top + 100;
+  end
+  else begin
+    lbDBUserName.Top := lbDBServer.Top + 52;
+    edDBUserName.Top := lbDBServer.Top + 48;
+    lbDBPassword.Top := lbDBServer.Top + 78;
+    edDBPassword.Top := lbDBServer.Top + 74;
+  end;
+  lbSID.Visible := ThisIsOracle;
+  cbSID.Visible := ThisIsOracle;
+  edDBServiceName.Visible := ThisIsOracle;
+  lbConnectMode.Visible := ThisIsOracle;
+  cbConnectMode.Visible := ThisIsOracle;
+  lbDatabase.Visible := Not(ThisIsOracle);
+  cbDBDatabase.Visible := Not(ThisIsOracle);
+end;
+
 procedure TSSHClientFrame.rbLocalPFClick(Sender: TObject);
 begin
   EnableLPFComponents(True);
@@ -265,6 +325,15 @@ begin
   UniConnection.Disconnect;
 end;
 
+procedure TSSHClientFrame.edSSHKeyPathChange(Sender: TObject);
+begin
+  if SysUtils.DirectoryExists(edSSHKeyPath.Text) then begin
+    ScFileStorage.Path := edSSHKeyPath.Text;
+    ScFileStorage.Keys.GetKeyNames(cbSSHPrivateKey.Items);
+    cbSSHPrivateKey.ItemIndex := 0;
+  end;
+end;
+
 procedure TSSHClientFrame.edListenPortChange(Sender: TObject);
 begin
   UniConnection.Disconnect;
@@ -275,6 +344,10 @@ procedure TSSHClientFrame.ShowPasswordAuth(pa: boolean);
 begin
   pnPassword.Visible := pa;
   pnPrivateKey.Visible := not pa;
+  if pa then
+    cbRandomization.Top := 160
+  else
+    cbRandomization.Top := 186;
   Repaint;
 end;
 
@@ -295,12 +368,12 @@ begin
   DisconnectAll;
 end;
 
-procedure TSSHClientFrame.cbPrivateKeyDropDown(Sender: TObject);
+procedure TSSHClientFrame.cbSSHPrivateKeyDropDown(Sender: TObject);
 begin
-  ScFileStorage.Keys.GetKeyNames(cbPrivateKey.Items);
+  ScFileStorage.Keys.GetKeyNames(cbSSHPrivateKey.Items);
 end;
 
-procedure TSSHClientFrame.cbPrivateKeyChange(Sender: TObject);
+procedure TSSHClientFrame.cbSSHPrivateKeyChange(Sender: TObject);
 begin
   DisconnectAll;
 end;
@@ -372,17 +445,28 @@ begin
   try
     with Registry do begin
       OpenKey(KeyPath + '\' + TSSHClientFrame.ClassName, True);
+      WriteBool('SSHPasswordAuth', rbPassword.Checked);
       WriteString('SSHHost', ScSSHClient.HostName);
       WriteInteger('SSHPort', ScSSHClient.Port);
       WriteString('SSHUserName', ScSSHClient.User);
+      WriteString('SSHHost', edSSHHost.Text);
+      if edSSHPort.Text <> '' then
+        WriteInteger('SSHPort', StrToInt(edSSHPort.Text))
+      else
+        WriteInteger('SSHPort', 22);
+      WriteString('SSHKeyPath', ScFileStorage.Path);
+      WriteString('SSHKeyExt', ScFileStorage.KeyExt);
 
       WriteInteger('ListenPort', seListenPort.Value);
-      WriteString('Provider', cbProvider.Text);
+      WriteInteger('Provider', cbProvider.ItemIndex);
       WriteString('DBHost', edDBHost.Text);
       WriteInteger('DBPort', seDBPort.Value);
       WriteString('DBUserName', edDBUserName.Text);
       WriteString('DBDatabase', cbDBDatabase.Text);
+      WriteString('DBServiceName', edDBServiceName.Text);
       WriteBool('Silent randomization', cbRandomization.Checked);
+      WriteBool('Use SID', cbSID.Checked);
+      WriteInteger('ConnectMode', cbConnectMode.ItemIndex);
     end;
   finally
     Registry.Free;
@@ -400,27 +484,39 @@ begin
   try
     with Registry do begin
       if OpenKey(KeyPath + '\' + TSSHClientFrame.ClassName, False) then begin
+        if ValueExists('SSHPasswordAuth') then begin
+          rbPassword.Checked := ReadBool('SSHPasswordAuth');
+          rbPublicKey.Checked := not(ReadBool('SSHPasswordAuth'));
+        end;
         if ValueExists('SSHHost') then
           ScSSHClient.HostName := ReadString('SSHHost');
         if ValueExists('SSHPort') then
           ScSSHClient.Port := ReadInteger('SSHPort');
         if ValueExists('SSHUserName') then
           ScSSHClient.User := ReadString('SSHUserName');
+        if ValueExists('SSHKeyPath') then
+           ScFileStorage.Path := ReadString('SSHKeyPath');
+        if ValueExists('SSHKeyExt') then
+           ScFileStorage.KeyExt := ReadString('SSHKeyExt');
 
         if ValueExists('ListenPort') then
           seListenPort.Value := ReadInteger('ListenPort');
         if ValueExists('Provider') then
-          cbProvider.Text := ReadString('Provider');
+          cbProvider.ItemIndex := ReadInteger('Provider');
         if ValueExists('DBHost') then
           edDBHost.Text := ReadString('DBHost');
         if ValueExists('DBPort') then
           seDBPort.Value := ReadInteger('DBPort');
+        if ValueExists('DBServiceName') then
+          edDBServiceName.Text := ReadString('DBServiceName');
         if ValueExists('DBUserName') then
           edDBUserName.Text := ReadString('DBUserName');
-        if ValueExists('DBDatabase') then
-          cbDBDatabase.Text := ReadString('DBDatabase');
         if ValueExists('Silent randomization') then
           cbRandomization.Checked := ReadBool('Silent randomization');
+        if ValueExists('Use SID') then
+          cbSID.Checked := ReadBool('Use SID');
+        if ValueExists('ConnectMode') then
+          cbConnectMode.ItemIndex := ReadInteger('ConnectMode');
         Result := True;
       end;
     end;
@@ -431,7 +527,7 @@ end;
 
 function TSSHClientFrame.KeyPath: string;
 begin
-  Result := '\SOFTWARE\Devart\SecureBridge\Demos';
+  Result := '\SOFTWARE\Devart\UniDAC\SecureBridge\Demos\SSH';
 end;
 {$ENDIF}
 
@@ -449,14 +545,14 @@ begin
   try
     Screen.Cursor := crHourGlass;
 
-    if cbPrivateKey.Text = '' then
-      cbPrivateKey.Text := 'client_key';
+    if cbSSHPrivateKey.Text = '' then
+      cbSSHPrivateKey.Text := 'client_key';
 
-    Key := ScFileStorage.Keys.FindKey(cbPrivateKey.Text);
+    Key := ScFileStorage.Keys.FindKey(cbSSHPrivateKey.Text);
 
     if Key = nil then begin
       Key := TScKey.Create(ScFileStorage.Keys);
-      Key.KeyName := cbPrivateKey.Text;
+      Key.KeyName := cbSSHPrivateKey.Text;
       Algorithm := aaRSA;
       BitCount := 1024;
     end
@@ -518,6 +614,8 @@ begin
 end;
 
 procedure TSSHClientFrame.UniConnectionBeforeConnect(Sender: TObject);
+var
+  ServerInfo: TDirectServerInfo;
 begin
   if rbLocalPF.Checked then begin
     UniConnection.IOHandler := nil;
@@ -539,7 +637,29 @@ begin
   UniConnection.ProviderName := cbProvider.Text;
   UniConnection.Username := edDBUserName.Text;
   UniConnection.Password := edDBPassword.Text;
-  UniConnection.Database := cbDBDatabase.Text;
+  if UniConnection.ProviderName <> 'Oracle' then
+    UniConnection.Database := cbDBDatabase.Text
+  else begin
+    if Pos(SSHPrefix, edDBHost.Text)=0 then
+      if MessageDlg(Format('The host name for the SSH connection must begin with "%s". Should I change the value of the "Server" field?', [SSHPrefix]), mtInformation, [mbYes, mbNo], 0) = mrYes then
+        edDBHost.Text := SSHPrefix + edDBHost.Text;
+    UniConnection.SpecificOptions.Values['Direct'] := 'True';
+    ServerInfo :=  TDirectServerInfo.Create;
+    try
+      ServerInfo.Host := edDBHost.Text;
+      ServerInfo.Port := seDBPort.Text;
+      if cbSID.Checked then
+        ServerInfo.SID := edDBServiceName.Text
+      else
+        ServerInfo.ServiceName := edDBServiceName.Text;
+      UniConnection.Server := ServerInfo.GetServerInfo;
+    finally
+      ServerInfo.Free;
+    end;
+    UniConnection.SpecificOptions.Values['Oracle.ConnectMode'] := GetEnumName(TypeInfo(TConnectMode), cbConnectMode.ItemIndex);
+  end;
+  if UniConnection.Username = '' then
+     raise Exception.Create('Username cannot be empty');
 end;
 
 procedure TSSHClientFrame.ScSSHClientBeforeConnect(Sender: TObject);
@@ -557,9 +677,30 @@ begin
   end
   else begin
     ScSSHClient.Authentication := atPublicKey;
-    ScSSHClient.PrivateKeyName := cbPrivateKey.Text;
+    ScSSHClient.PrivateKeyName := cbSSHPrivateKey.Text;
     if ScFileStorage.Keys.FindKey(ScSSHClient.PrivateKeyName) = nil then
       raise EScError.Create('Private key can not be empty');
+
+    if (ScSSHClient.User = '') and (cbProvider.Text = 'Oracle') then
+      ScSSHClient.User := 'opc';
+  end;
+end;
+
+procedure TSSHClientFrame.cbSIDClick(Sender: TObject);
+begin
+  if cbSID.Checked then
+    lbSID.Caption := 'SID'
+  else
+    lbSID.Caption := 'Service Name';
+end;
+
+procedure TSSHClientFrame.sbKeyPathClick(Sender: TObject);
+begin
+  OpenDialog.Filter := 'All files (*.*)|*.*|Private keys (*.ppk)|*.ppk|Private keys (*.ssh)|*.ssh|Public keys (*.pub)|*.pub';
+  OpenDialog.Title := 'Select Private Key';
+  if OpenDialog.Execute then begin
+    ScFileStorage.KeyExt := Copy(ExtractFileExt(OpenDialog.FileName), 2, Length(ExtractFileExt(OpenDialog.FileName)));
+    edSSHKeyPath.Text := ExtractFilePath(OpenDialog.FileName);
   end;
 end;
 

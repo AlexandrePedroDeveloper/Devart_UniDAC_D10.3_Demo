@@ -1,9 +1,9 @@
 object DemoForm: TDemoForm
   Left = 71
   Top = 139
+  Width = 957
+  Height = 500
   Caption = 'Data Access Components demos'
-  ClientHeight = 461
-  ClientWidth = 949
   Color = clSilver
   Constraints.MinHeight = 500
   Font.Charset = DEFAULT_CHARSET
@@ -24,20 +24,19 @@ object DemoForm: TDemoForm
   object TVSplitter: TSplitter
     Left = 216
     Top = 69
-    Height = 372
+    Height = 374
     Beveled = True
     Color = 9790720
     MinSize = 150
     ParentColor = False
     OnCanResize = TVSplitterCanResize
     OnMoved = TVSplitterMoved
-    ExplicitHeight = 374
   end
   object MainPanel: TPanel
     Left = 219
     Top = 69
     Width = 730
-    Height = 372
+    Height = 374
     Align = alClient
     BevelOuter = bvNone
     Constraints.MinWidth = 730
@@ -46,7 +45,7 @@ object DemoForm: TDemoForm
       Left = 0
       Top = 0
       Width = 730
-      Height = 372
+      Height = 374
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
@@ -55,7 +54,7 @@ object DemoForm: TDemoForm
       Left = 0
       Top = 0
       Width = 730
-      Height = 372
+      Height = 374
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
@@ -64,7 +63,7 @@ object DemoForm: TDemoForm
   end
   object StatusBar: TStatusBar
     Left = 0
-    Top = 441
+    Top = 443
     Width = 949
     Height = 20
     Font.Charset = DEFAULT_CHARSET
@@ -86,21 +85,20 @@ object DemoForm: TDemoForm
         Width = 50
       end>
     UseSystemFont = False
-    ExplicitWidth = 120
   end
   object PanelUnderTree: TPanel
     Left = 0
     Top = 69
     Width = 216
-    Height = 372
+    Height = 374
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 0
     object TreeView: TTreeView
       Left = 0
       Top = 22
-      Width = 216
-      Height = 350
+      Width = 351
+      Height = 352
       Align = alClient
       HideSelection = False
       HotTrack = True
@@ -126,6 +124,7 @@ object DemoForm: TDemoForm
       DisabledImages = ilDisabledButtons
       EdgeInner = esNone
       EdgeOuter = esNone
+      Flat = True
       Images = ilButtons
       TabOrder = 1
       object tbBrowseBack: TToolButton
@@ -139,7 +138,7 @@ object DemoForm: TDemoForm
         OnClick = tbBrowseBackClick
       end
       object tbBrowseForward: TToolButton
-        Left = 43
+        Left = 41
         Top = 0
         Hint = 'Forward'
         DropdownMenu = ForwardHistoryPopup
@@ -157,7 +156,6 @@ object DemoForm: TDemoForm
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 3
-    ExplicitWidth = 120
     object lbTitle: TLabel
       Left = 0
       Top = 0
@@ -176,7 +174,6 @@ object DemoForm: TDemoForm
       ParentColor = False
       ParentFont = False
       OnMouseMove = lbTitleMouseMove
-      ExplicitWidth = 222
     end
     object lbAbout: TLabel
       Left = 854
@@ -205,7 +202,6 @@ object DemoForm: TDemoForm
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 4
-    ExplicitWidth = 120
     object Shape1: TShape
       Left = 0
       Top = 25

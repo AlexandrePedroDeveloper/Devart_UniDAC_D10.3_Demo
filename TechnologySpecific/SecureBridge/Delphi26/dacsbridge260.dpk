@@ -38,6 +38,7 @@ requires
 
 contains
   CRSSHIOHandler in '..\CRSSHIOHandler.pas',
-  CRSSLIOHandler in '..\CRSSLIOHandler.pas';
+  CRSSLIOHandler in '..\CRSSLIOHandler.pas',
+  CRSsoStorage in '..\CRSsoStorage.pas';
 
 end.

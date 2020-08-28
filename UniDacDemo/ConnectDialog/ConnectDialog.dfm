@@ -1,8 +1,7 @@
 inherited ConnectDialogFrame: TConnectDialogFrame
   Width = 443
   Height = 270
-  ExplicitWidth = 443
-  ExplicitHeight = 270
+  Align = alClient
   object ToolBar: TPanel
     Left = 0
     Top = 0
@@ -98,13 +97,13 @@ inherited ConnectDialogFrame: TConnectDialogFrame
     TitleFont.Charset = DEFAULT_CHARSET
     TitleFont.Color = clWindowText
     TitleFont.Height = -11
-    TitleFont.Name = 'Tahoma'
+    TitleFont.Name = 'MS Sans Serif'
     TitleFont.Style = []
   end
   object DataSource: TDataSource
     DataSet = UniQuery
-    Left = 148
-    Top = 64
+    Left = 80
+    Top = 56
   end
   object UniQuery: TUniQuery
     Connection = UniDACForm.UniConnection

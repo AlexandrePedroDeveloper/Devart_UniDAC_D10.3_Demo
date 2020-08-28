@@ -72,7 +72,7 @@ end;
 procedure TUniDacAboutForm.lbWebClick(Sender: TObject);
 begin
 {$IFNDEF LINUX}
-  ShellExecute(0, 'open', {$IFNDEF CLR}PChar{$ENDIF}('http://www.devart.com/unidac'), '', '', SW_SHOW);
+  ShellExecute(0, 'open', {$IFNDEF CLR}PChar{$ENDIF}('https://www.devart.com/unidac/'), '', '', SW_SHOW);
   lbWeb.Font.Color := $FF0000;
 {$ENDIF}
 end;
@@ -88,7 +88,9 @@ end;
 procedure TUniDacAboutForm.lbForumClick(Sender: TObject);
 begin
 {$IFNDEF LINUX}
-  ShellExecute(0, 'open', {$IFNDEF CLR}PChar{$ENDIF}('www.devart.com/forums/viewforum.php?f=28'), '', '', SW_SHOW);
+  ShellExecute(0, 'open', {$IFNDEF CLR}PChar{$ENDIF}('https://forums.devart.com/viewforum.php?f=28'), '', '', SW_SHOW);
+
+                                                     
   lbWeb.Font.Color := $FF0000;
 {$ENDIF}
 end;

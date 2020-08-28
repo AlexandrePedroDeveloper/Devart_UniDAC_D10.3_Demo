@@ -21,7 +21,7 @@ object fmMyConnect: TfmMyConnect
   PixelsPerInch = 96
   TextHeight = 13
   object Panel: TPanel
-    Left = 8
+    Left = 9
     Top = 8
     Width = 273
     Height = 222
@@ -33,12 +33,12 @@ object fmMyConnect: TfmMyConnect
     object lbUsername: TLabel
       Left = 9
       Top = 54
-      Width = 58
+      Width = 64
       Height = 13
       Caption = 'Username'
+      AutoSize = False
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clNavy
-      Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = [fsBold, fsItalic]
       ParentFont = False
@@ -47,12 +47,12 @@ object fmMyConnect: TfmMyConnect
     object lbPassword: TLabel
       Left = 9
       Top = 88
-      Width = 54
+      Width = 64
       Height = 13
       Caption = 'Password'
+      AutoSize = False
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clNavy
-      Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = [fsBold, fsItalic]
       ParentFont = False
@@ -61,12 +61,12 @@ object fmMyConnect: TfmMyConnect
     object lbServer: TLabel
       Left = 9
       Top = 122
-      Width = 38
+      Width = 64
       Height = 13
       Caption = 'Server'
+      AutoSize = False
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clNavy
-      Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = [fsBold, fsItalic]
       ParentFont = False
@@ -75,12 +75,12 @@ object fmMyConnect: TfmMyConnect
     object lbPort: TLabel
       Left = 9
       Top = 156
-      Width = 24
+      Width = 32
       Height = 13
       Caption = 'Port'
+      AutoSize = False
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clNavy
-      Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = [fsBold, fsItalic]
       ParentFont = False
@@ -89,12 +89,12 @@ object fmMyConnect: TfmMyConnect
     object lbProvider: TLabel
       Left = 9
       Top = 20
-      Width = 48
+      Width = 64
       Height = 13
       Caption = 'Provider'
+      AutoSize = False
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clNavy
-      Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = [fsBold, fsItalic]
       ParentFont = False
@@ -103,12 +103,12 @@ object fmMyConnect: TfmMyConnect
     object lbDatabase: TLabel
       Left = 9
       Top = 190
-      Width = 54
+      Width = 64
       Height = 13
       Caption = 'Database'
+      AutoSize = False
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clNavy
-      Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = [fsBold, fsItalic]
       ParentFont = False
@@ -175,7 +175,7 @@ object fmMyConnect: TfmMyConnect
     end
   end
   object btConnect: TBitBtn
-    Left = 49
+    Left = 85
     Top = 241
     Width = 89
     Height = 25
@@ -203,7 +203,7 @@ object fmMyConnect: TfmMyConnect
     NumGlyphs = 2
   end
   object btCancel: TBitBtn
-    Left = 145
+    Left = 185
     Top = 241
     Width = 89
     Height = 25

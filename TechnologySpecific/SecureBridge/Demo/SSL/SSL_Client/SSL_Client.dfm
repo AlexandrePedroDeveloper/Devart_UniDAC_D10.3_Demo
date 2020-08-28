@@ -5,8 +5,8 @@ inherited SSLClientFrame: TSSLClientFrame
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 506
-    Height = 267
+    Width = 443
+    Height = 323
     Align = alTop
     BevelOuter = bvNone
     Ctl3D = True
@@ -52,8 +52,8 @@ inherited SSLClientFrame: TSSLClientFrame
       Tag = 1
       Left = 1
       Top = 30
-      Width = 661
-      Height = 233
+      Width = 785
+      Height = 289
       BevelOuter = bvNone
       Color = 48127
       Font.Charset = DEFAULT_CHARSET
@@ -64,18 +64,18 @@ inherited SSLClientFrame: TSSLClientFrame
       ParentFont = False
       TabOrder = 1
       object Panel6: TPanel
-        Left = 343
+        Left = 450
         Top = 1
-        Width = 317
-        Height = 183
+        Width = 334
+        Height = 236
         BevelOuter = bvNone
-        TabOrder = 1
-        object Label2: TLabel
+        TabOrder = 3
+        object lbDBConnection: TLabel
           Left = 8
-          Top = 3
-          Width = 84
+          Top = 5
+          Width = 105
           Height = 13
-          Caption = 'DB Connection '
+          Caption = 'DB Connection'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -83,126 +83,171 @@ inherited SSLClientFrame: TSSLClientFrame
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object Label10: TLabel
+        object lbDBServer: TLabel
           Left = 16
           Top = 56
           Width = 32
           Height = 13
           Caption = 'Server'
         end
-        object Label11: TLabel
+        object lbDBPort: TLabel
           Left = 16
           Top = 82
           Width = 20
           Height = 13
           Caption = 'Port'
         end
-        object Label12: TLabel
+        object lbSID: TLabel
           Left = 16
           Top = 108
-          Width = 48
+          Width = 65
           Height = 13
-          Caption = 'Username'
+          Caption = 'Service Name'
         end
-        object Label13: TLabel
+        object lbDBUserName: TLabel
           Left = 16
           Top = 134
-          Width = 46
+          Width = 51
           Height = 13
-          Caption = 'Password'
+          Caption = 'User name'
         end
-        object Label14: TLabel
+        object lbDBPassword: TLabel
           Left = 16
           Top = 160
           Width = 46
           Height = 13
+          Caption = 'Password'
+        end
+        object lbConnectMode: TLabel
+          Left = 16
+          Top = 186
+          Width = 69
+          Height = 13
+          Caption = 'Connect Mode'
+        end
+        object lbDBDatabase: TLabel
+          Left = 16
+          Top = 186
+          Width = 46
+          Height = 13
           Caption = 'Database'
         end
-        object Label6: TLabel
+        object lbProvider: TLabel
           Left = 16
           Top = 30
           Width = 40
           Height = 13
           Caption = 'Provider'
         end
+        object cbSID: TCheckBox
+          Left = 265
+          Top = 80
+          Width = 89
+          Height = 17
+          Caption = 'Use SID'
+          TabOrder = 3
+          OnClick = cbSIDClick
+        end
+        object cbConnectMode: TComboBox
+          Left = 98
+          Top = 182
+          Width = 100
+          Height = 21
+          ItemIndex = 0
+          TabOrder = 8
+          Text = 'Normal'
+          Items.Strings = (
+            'Normal'
+            'SysOper'
+            'SysDBA'
+            'SysASM'
+            'SysBackup'
+            'SysDG'
+            'SysKM')
+        end
         object edDBHost: TEdit
           Left = 98
           Top = 52
-          Width = 200
+          Width = 220
           Height = 21
           TabOrder = 1
           OnChange = edDBHostChange
         end
         object edDBUserName: TEdit
           Left = 98
-          Top = 104
-          Width = 200
+          Top = 130
+          Width = 220
           Height = 21
-          TabOrder = 3
+          TabOrder = 5
           OnChange = edDBHostChange
         end
         object edDBPassword: TEdit
           Left = 98
-          Top = 130
-          Width = 200
+          Top = 156
+          Width = 220
           Height = 21
           PasswordChar = '*'
-          TabOrder = 4
+          TabOrder = 6
           OnChange = edDBHostChange
         end
         object seDBPort: TSpinEdit
           Left = 98
           Top = 78
-          Width = 200
+          Width = 95
           Height = 22
           MaxValue = 65536
           MinValue = 0
           TabOrder = 2
-          Value = 3306
+          Value = 0
+          OnChange = edDBHostChange
+        end
+        object edDBServiceName: TEdit
+          Left = 98
+          Top = 104
+          Width = 220
+          Height = 21
+          TabOrder = 4
           OnChange = edDBHostChange
         end
         object cbDBDatabase: TComboBox
           Left = 98
-          Top = 156
-          Width = 200
+          Top = 182
+          Width = 220
           Height = 21
-          ItemHeight = 13
-          TabOrder = 5
+          TabOrder = 7
           OnChange = cbDBDatabaseChange
           OnDropDown = cbDBDatabaseDropDown
         end
         object cbProvider: TComboBox
           Left = 98
           Top = 26
-          Width = 200
+          Width = 220
           Height = 21
-          ItemHeight = 13
           TabOrder = 0
-          OnChange = edDBHostChange
+          OnChange = cbProviderChange
         end
       end
       object Panel7: TPanel
         Left = 1
-        Top = 185
-        Width = 659
-        Height = 22
+        Top = 238
+        Width = 783
+        Height = 25
         BevelOuter = bvNone
-        TabOrder = 2
+        TabOrder = 0
         object lbTableName: TLabel
-          Left = 10
+          Left = 12
           Top = 6
           Width = 55
           Height = 13
           Caption = 'Table name'
         end
         object cbTableName: TComboBox
-          Left = 98
-          Top = 1
-          Width = 307
+          Left = 120
+          Top = 2
+          Width = 290
           Height = 21
           DropDownCount = 16
           Enabled = False
-          ItemHeight = 13
           TabOrder = 0
           OnChange = cbTableNameChange
           OnDropDown = cbTableNameDropDown
@@ -210,12 +255,12 @@ inherited SSLClientFrame: TSSLClientFrame
       end
       object Panel9: TPanel
         Left = 1
-        Top = 208
+        Top = 264
         Width = 404
         Height = 24
         BevelOuter = bvNone
         Color = 48127
-        TabOrder = 3
+        TabOrder = 2
         object btOpen: TSpeedButton
           Left = 1
           Top = 1
@@ -250,8 +295,8 @@ inherited SSLClientFrame: TSSLClientFrame
       end
       object Panel8: TPanel
         Left = 405
-        Top = 208
-        Width = 255
+        Top = 264
+        Width = 379
         Height = 24
         BevelOuter = bvNone
         TabOrder = 4
@@ -259,13 +304,14 @@ inherited SSLClientFrame: TSSLClientFrame
       object Panel3: TPanel
         Left = 1
         Top = 1
-        Width = 341
-        Height = 183
+        Width = 448
+        Height = 236
         BevelOuter = bvNone
-        TabOrder = 0
-        object Label1: TLabel
-          Left = 8
-          Top = 3
+        TabOrder = 1
+        TabStop = True
+        object lbSSLConnection: TLabel
+          Left = 10
+          Top = 5
           Width = 89
           Height = 13
           Caption = 'SSL Connection '
@@ -276,105 +322,194 @@ inherited SSLClientFrame: TSSLClientFrame
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object Label3: TLabel
-          Left = 16
-          Top = 54
+        object lbCAcertificate: TLabel
+          Left = 10
+          Top = 30
           Width = 65
           Height = 13
           Caption = 'CA certificate'
         end
-        object Label4: TLabel
-          Left = 16
-          Top = 80
+        object lbClientCertificate: TLabel
+          Left = 10
+          Top = 56
           Width = 78
           Height = 13
           Caption = 'Client certificate'
         end
-        object Label5: TLabel
-          Left = 16
-          Top = 106
+        object lbClientPrivateKey: TLabel
+          Left = 10
+          Top = 82
           Width = 84
           Height = 13
           Caption = 'Client private key'
         end
         object sbCACertName: TSpeedButton
-          Left = 301
-          Top = 50
+          Left = 411
+          Top = 25
           Width = 23
-          Height = 22
+          Height = 23
           Caption = '...'
           Flat = True
           Transparent = False
           OnClick = sbCACertNameClick
         end
         object sbCertName: TSpeedButton
-          Left = 301
-          Top = 76
+          Left = 411
+          Top = 51
           Width = 23
-          Height = 22
+          Height = 23
           Caption = '...'
           Flat = True
           Transparent = False
           OnClick = sbCertNameClick
         end
         object sbKeyName: TSpeedButton
-          Left = 301
-          Top = 102
+          Left = 411
+          Top = 77
           Width = 23
-          Height = 22
+          Height = 23
           Caption = '...'
           Flat = True
           Transparent = False
           OnClick = sbKeyNameClick
         end
         object edCACertName: TEdit
-          Left = 101
-          Top = 50
-          Width = 200
+          Left = 120
+          Top = 26
+          Width = 290
           Height = 21
           TabOrder = 0
           Text = '.\ca-cert.pem'
           OnChange = edDBHostChange
         end
+        object edCertName: TEdit
+          Left = 120
+          Top = 52
+          Width = 290
+          Height = 21
+          TabOrder = 1
+          Text = '.\client-cert.pem'
+          OnChange = edDBHostChange
+        end
         object edKeyName: TEdit
-          Left = 101
-          Top = 102
-          Width = 200
+          Left = 120
+          Top = 78
+          Width = 290
           Height = 21
           TabOrder = 2
           Text = '.\client.key'
           OnChange = edDBHostChange
         end
-        object cbRandomization: TCheckBox
-          Left = 184
-          Top = 26
-          Width = 118
-          Height = 17
-          Hint = 'Generation random data increase connection reliability'
-          Caption = 'Silent randomization'
-          ParentShowHint = False
-          ShowHint = True
-          TabOrder = 4
-        end
-        object cbSSL: TCheckBox
-          Left = 99
-          Top = 26
-          Width = 76
-          Height = 17
-          Caption = 'Use SSL'
-          Checked = True
-          State = cbChecked
+        object pnOracleOptions: TPanel
+          Left = 1
+          Top = 103
+          Width = 435
+          Height = 80
+          BevelOuter = bvNone
+          Caption = 'pnOracleOption'
+          ParentBackground = False
           TabOrder = 3
-          OnClick = edDBHostChange
+          object lbServerCertDN: TLabel
+            Left = 10
+            Top = 57
+            Width = 102
+            Height = 13
+            Caption = 'Server Certificate DN'
+          end
+          object sbWallet: TSpeedButton
+            Left = 410
+            Top = 25
+            Width = 23
+            Height = 23
+            Caption = '...'
+            Flat = True
+            Transparent = False
+            OnClick = sbWalletClick
+          end
+          object lbWallet: TLabel
+            Left = 10
+            Top = 31
+            Width = 83
+            Height = 13
+            Caption = 'Wallet'
+          end
+          object lbStorageKind: TLabel
+            Left = 10
+            Top = 5
+            Width = 77
+            Height = 13
+            Caption = 'Storage Kind'
+          end
+          object rbWallet: TRadioButton
+            Left = 160
+            Top = 3
+            Width = 80
+            Height = 17
+            Caption = 'Wallet'
+            TabOrder = 0
+            TabStop = True
+            OnClick = rbWalletClick
+          end
+          object rbCertificate: TRadioButton
+            Left = 293
+            Top = 3
+            Width = 84
+            Height = 17
+            Caption = 'Certificate'
+            Checked = True
+            TabOrder = 1
+            TabStop = True
+            OnClick = rbCertificateClick
+          end
+          object edWallet: TEdit
+            Left = 119
+            Top = 26
+            Width = 290
+            Height = 21
+            TabOrder = 2
+            OnChange = edDBHostChange
+          end
+          object edServerCertDN: TEdit
+            Left = 119
+            Top = 53
+            Width = 290
+            Height = 21
+            TabOrder = 3
+            OnChange = edDBHostChange
+          end
         end
-        object edCertName: TEdit
-          Left = 101
-          Top = 76
-          Width = 200
-          Height = 21
-          TabOrder = 1
-          Text = '.\client-cert.pem'
-          OnChange = edDBHostChange
+        object pnAdvancedOptions: TPanel
+          Left = 1
+          Top = 184
+          Width = 435
+          Height = 80
+          BevelOuter = bvNone
+          ParentBackground = False
+          TabOrder = 4
+          object cbTrustServerSertificate: TCheckBox
+            Left = 120
+            Top = 2
+            Width = 256
+            Height = 17
+            Hint = 'Specifies whether to verify the server certificate during an SSL handshake.'
+            Caption = 'Trust Server Sertificate'
+            Checked = True
+            ParentShowHint = False
+            ShowHint = True
+            State = cbChecked
+            TabOrder = 0
+          end
+          object cbRandomization: TCheckBox
+            Left = 120
+            Top = 28
+            Width = 118
+            Height = 17
+            Hint = 'Generation random data increase connection reliability'
+            Caption = 'Silent randomization'
+            ParentShowHint = False
+            ShowHint = True
+            TabOrder = 1
+          end
         end
       end
     end
@@ -426,8 +561,6 @@ inherited SSLClientFrame: TSSLClientFrame
   end
   object CRSSLIOHandler: TCRSSLIOHandler
     Storage = ScCryptoAPIStorage
-    CertName = 'clientcert'
-    CACertName = 'cacert'
     Left = 88
     Top = 168
   end

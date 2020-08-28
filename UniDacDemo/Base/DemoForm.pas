@@ -28,7 +28,7 @@ uses
   LResources,
 {$ENDIF}
   CRTypes, MemUtils, DBAccess, DAScript,
-  DemoBase, DemoFrame, CategoryFrame, System.ImageList;
+  DemoBase, DemoFrame, CategoryFrame;
 const
   MAX_HISTORY_SIZE = 6;
 

@@ -5,7 +5,7 @@ unit CRIOHandlerReg;
 interface
 
 uses
-  Classes, CRSSHIOHandler, CRSSLIOHandler;
+  Classes, CRSSHIOHandler, CRSSLIOHandler, CRSsoStorage;
 
 procedure Register;
 
@@ -42,6 +42,8 @@ procedure Register;
 begin
   RegisterComponents('Data Access', [TCRSSHIOHandler]);
   RegisterComponents('Data Access', [TCRSSLIOHandler]);
+  RegisterComponents('Data Access', [TCRSsoFileStorage]);
+  RegisterComponents('Data Access', [TCRSsoRegStorage]);
 end;
 
 end.

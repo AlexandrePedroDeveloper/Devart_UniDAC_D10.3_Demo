@@ -1,12 +1,12 @@
 inherited SSHClientFrame: TSSHClientFrame
-  Width = 699
-  Height = 395
+  Width = 614
+  Height = 520
   Align = alClient
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 699
-    Height = 315
+    Width = 680
+    Height = 348
     Align = alTop
     BevelOuter = bvNone
     Ctl3D = True
@@ -83,8 +83,8 @@ inherited SSHClientFrame: TSSHClientFrame
       Tag = 1
       Left = 1
       Top = 30
-      Width = 579
-      Height = 282
+      Width = 730
+      Height = 313
       BevelOuter = bvNone
       Color = 48127
       Font.Charset = DEFAULT_CHARSET
@@ -97,23 +97,23 @@ inherited SSHClientFrame: TSSHClientFrame
       object Panel6: TPanel
         Left = 1
         Top = 1
-        Width = 288
-        Height = 234
+        Width = 389
+        Height = 260
         BevelOuter = bvNone
         TabOrder = 0
-        object Label6: TLabel
+        object lbSSHUserName: TLabel
           Left = 16
           Top = 106
           Width = 51
           Height = 13
           Caption = 'User name'
         end
-        object Label1: TLabel
+        object lbSSHConnection: TLabel
           Left = 8
-          Top = 1
+          Top = 4
           Width = 91
           Height = 13
-          Caption = 'SSH Connection '
+          Caption = 'SSH Connection'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -121,35 +121,36 @@ inherited SSHClientFrame: TSSHClientFrame
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object Label4: TLabel
+        object lbSSHServer: TLabel
           Left = 16
           Top = 54
           Width = 54
           Height = 13
           Caption = 'SSH Server'
         end
-        object Label5: TLabel
+        object lbSSHPort: TLabel
           Left = 16
           Top = 80
           Width = 42
           Height = 13
           Caption = 'SSH Port'
         end
-        object Label3: TLabel
-          Left = 16
+        object lbAuthenticationKind: TLabel
+          Left = 81
           Top = 26
-          Width = 96
+          Width = 94
           Height = 13
-          Caption = 'Authentication kind:'
+          Caption = 'Authentication kind :'
         end
         object pnPassword: TPanel
           Left = 10
           Top = 124
-          Width = 265
+          Width = 375
           Height = 31
+          Color = clHotLight
           BevelOuter = bvNone
           TabOrder = 5
-          object Label7: TLabel
+          object lbSShPassword: TLabel
             Left = 6
             Top = 8
             Width = 46
@@ -159,7 +160,7 @@ inherited SSHClientFrame: TSSHClientFrame
           object edSSHPassword: TEdit
             Left = 70
             Top = 4
-            Width = 185
+            Width = 293
             Height = 21
             PasswordChar = '*'
             TabOrder = 0
@@ -169,7 +170,7 @@ inherited SSHClientFrame: TSSHClientFrame
         object edSSHUserName: TEdit
           Left = 80
           Top = 102
-          Width = 185
+          Width = 293
           Height = 21
           TabOrder = 4
           OnChange = edSSHUserNameChange
@@ -177,7 +178,7 @@ inherited SSHClientFrame: TSSHClientFrame
         object edSSHHost: TEdit
           Left = 80
           Top = 50
-          Width = 185
+          Width = 293
           Height = 21
           TabOrder = 2
           OnChange = edSSHUserNameChange
@@ -185,15 +186,15 @@ inherited SSHClientFrame: TSSHClientFrame
         object edSSHPort: TEdit
           Left = 80
           Top = 76
-          Width = 185
+          Width = 100
           Height = 21
           TabOrder = 3
           OnChange = edSSHUserNameChange
         end
         object rbPassword: TRadioButton
-          Left = 120
+          Left = 203
           Top = 24
-          Width = 71
+          Width = 69
           Height = 17
           Caption = 'Password'
           Checked = True
@@ -202,9 +203,9 @@ inherited SSHClientFrame: TSSHClientFrame
           OnClick = rbPasswordClick
         end
         object rbPublicKey: TRadioButton
-          Left = 195
+          Left = 286
           Top = 24
-          Width = 76
+          Width = 68
           Height = 17
           Caption = 'Public key'
           TabOrder = 1
@@ -213,8 +214,8 @@ inherited SSHClientFrame: TSSHClientFrame
         object pnPrivateKey: TPanel
           Left = 10
           Top = 124
-          Width = 265
-          Height = 77
+          Width = 373
+          Height = 103
           BevelOuter = bvNone
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -224,26 +225,51 @@ inherited SSHClientFrame: TSSHClientFrame
           ParentFont = False
           TabOrder = 6
           Visible = False
-          object Label8: TLabel
+          object lbKeyPath: TLabel
             Left = 6
             Top = 8
-            Width = 54
+            Width = 53
+            Height = 13
+            Caption = 'Key path'
+          end
+          object edSSHKeyPath: TEdit
+            Left = 70
+            Top = 4
+            Width = 268
+            Height = 21
+            TabOrder = 0
+            OnChange = edSSHKeyPathChange
+          end
+          object sbKeyPath: TSpeedButton
+            Left = 342
+            Top = 3
+            Width = 23
+            Height = 23
+            Caption = '...'
+            Flat = True
+            Transparent = False
+            OnClick = sbKeyPathClick
+          end
+          object lbPrivateKey: TLabel
+            Left = 6
+            Top = 34
+            Width = 53
             Height = 13
             Caption = 'Private key'
           end
-          object cbPrivateKey: TComboBox
+          object cbSSHPrivateKey: TComboBox
             Left = 70
-            Top = 4
-            Width = 185
+            Top = 30
+            Width = 293
             Height = 21
             ItemHeight = 13
-            TabOrder = 0
-            OnChange = cbPrivateKeyChange
-            OnDropDown = cbPrivateKeyDropDown
+            TabOrder = 1
+            OnChange = cbSSHPrivateKeyChange
+            OnDropDown = cbSSHPrivateKeyDropDown
           end
-          object Panel12: TPanel
-            Left = 130
-            Top = 32
+          object pnGenerateKey: TPanel
+            Left = 240
+            Top = 58
             Width = 125
             Height = 24
             BevelOuter = bvNone
@@ -274,15 +300,15 @@ inherited SSHClientFrame: TSSHClientFrame
         end
       end
       object Panel7: TPanel
-        Left = 290
+        Left = 391
         Top = 1
-        Width = 288
-        Height = 234
+        Width = 338
+        Height = 260
         BevelOuter = bvNone
         TabOrder = 1
-        object Label2: TLabel
+        object lbDBConnection: TLabel
           Left = 8
-          Top = 1
+          Top = 4
           Width = 84
           Height = 13
           Caption = 'DB Connection '
@@ -300,35 +326,42 @@ inherited SSHClientFrame: TSSHClientFrame
           Height = 13
           Caption = 'Listen Port'
         end
-        object Label10: TLabel
+        object lbDBServer: TLabel
           Left = 16
           Top = 106
           Width = 32
           Height = 13
           Caption = 'Server'
         end
-        object Label11: TLabel
+        object lbDBPort: TLabel
           Left = 16
           Top = 132
           Width = 20
           Height = 13
           Caption = 'Port'
         end
-        object Label12: TLabel
+        object lbDBUserName: TLabel
           Left = 16
           Top = 158
           Width = 51
           Height = 13
           Caption = 'User name'
         end
-        object Label13: TLabel
+        object lbDBPassword: TLabel
           Left = 16
           Top = 184
           Width = 46
           Height = 13
           Caption = 'Password'
         end
-        object Label14: TLabel
+        object lbSID: TLabel
+          Left = 16
+          Top = 158
+          Width = 65
+          Height = 13
+          Caption = 'Service Name'
+        end
+        object lbDatabase: TLabel
           Left = 16
           Top = 210
           Width = 46
@@ -343,7 +376,7 @@ inherited SSHClientFrame: TSSHClientFrame
           Caption = 'Provider'
         end
         object rbLocalPF: TRadioButton
-          Left = 131
+          Left = 200
           Top = 24
           Width = 120
           Height = 17
@@ -358,7 +391,7 @@ inherited SSHClientFrame: TSSHClientFrame
           OnClick = rbLocalPFClick
         end
         object rbDirect: TRadioButton
-          Left = 24
+          Left = 100
           Top = 24
           Width = 89
           Height = 17
@@ -377,7 +410,7 @@ inherited SSHClientFrame: TSSHClientFrame
         object edDBHost: TEdit
           Left = 98
           Top = 102
-          Width = 169
+          Width = 220
           Height = 21
           TabOrder = 2
           OnChange = edListenPortChange
@@ -385,7 +418,7 @@ inherited SSHClientFrame: TSSHClientFrame
         object edDBUserName: TEdit
           Left = 98
           Top = 154
-          Width = 169
+          Width = 220
           Height = 21
           TabOrder = 4
           OnChange = edListenPortChange
@@ -393,16 +426,25 @@ inherited SSHClientFrame: TSSHClientFrame
         object edDBPassword: TEdit
           Left = 98
           Top = 180
-          Width = 169
+          Width = 220
           Height = 21
           PasswordChar = '*'
           TabOrder = 5
           OnChange = edListenPortChange
         end
+        object cbSID: TCheckBox
+          Left = 263
+          Top = 130
+          Width = 89
+          Height = 17
+          Caption = 'Use SID'
+          TabOrder = 4
+          OnClick = cbSIDClick
+        end
         object seDBPort: TSpinEdit
           Left = 98
           Top = 128
-          Width = 169
+          Width = 94
           Height = 22
           MaxValue = 0
           MinValue = 0
@@ -410,10 +452,18 @@ inherited SSHClientFrame: TSSHClientFrame
           Value = 3306
           OnChange = edListenPortChange
         end
+        object edDBServiceName: TEdit
+          Left = 98
+          Top = 154
+          Width = 220
+          Height = 21
+          TabOrder = 5
+          OnChange = edListenPortChange
+        end
         object cbDBDatabase: TComboBox
           Left = 98
           Top = 206
-          Width = 169
+          Width = 220
           Height = 21
           ItemHeight = 13
           TabOrder = 6
@@ -423,7 +473,7 @@ inherited SSHClientFrame: TSSHClientFrame
         object seListenPort: TSpinEdit
           Left = 98
           Top = 50
-          Width = 169
+          Width = 90
           Height = 22
           MaxValue = 0
           MinValue = 0
@@ -434,22 +484,47 @@ inherited SSHClientFrame: TSSHClientFrame
         object cbProvider: TComboBox
           Left = 98
           Top = 76
-          Width = 169
+          Width = 220
           Height = 21
           ItemHeight = 13
           TabOrder = 8
-          OnChange = edListenPortChange
+          OnChange = cbProviderChange
+        end
+        object lbConnectMode: TLabel
+          Left = 16
+          Top = 236
+          Width = 69
+          Height = 13
+          Caption = 'Connect Mode'
+        end
+        object cbConnectMode: TComboBox
+          Left = 98
+          Top = 232
+          Width = 100
+          Height = 21
+          ItemIndex = 0
+          TabOrder = 9
+          Text = 'Normal'
+          Items.Strings = (
+            'Normal'
+            'SysOper'
+            'SysDBA'
+            'SysASM'
+            'SysBackup'
+            'SysDG'
+            'SysKM')
+          end
         end
       end
-      object s: TPanel
-        Left = 1
-        Top = 236
-        Width = 577
-        Height = 22
+      object Panel10: TPanel
+        Left = 2
+        Top = 292
+        Width = 728
+        Height = 25
         BevelOuter = bvNone
         TabOrder = 2
         object lbTableName: TLabel
-          Left = 10
+          Left = 8
           Top = 6
           Width = 55
           Height = 13
@@ -457,8 +532,8 @@ inherited SSHClientFrame: TSSHClientFrame
         end
         object cbTableName: TComboBox
           Left = 83
-          Top = 1
-          Width = 212
+          Top = 2
+          Width = 304
           Height = 21
           DropDownCount = 16
           Enabled = False
@@ -469,10 +544,10 @@ inherited SSHClientFrame: TSSHClientFrame
         end
       end
       object Panel9: TPanel
-        Left = 1
-        Top = 258
-        Width = 577
-        Height = 23
+        Left = 2
+        Top = 318        
+        Width = 728
+        Height = 24
         BevelOuter = bvNone
         Color = 48127
         TabOrder = 3
@@ -517,7 +592,6 @@ inherited SSHClientFrame: TSSHClientFrame
         end
       end
     end
-  end
   object Panel2: TPanel
     Left = 0
     Top = 315
@@ -551,7 +625,6 @@ inherited SSHClientFrame: TSSHClientFrame
       item
         Algorithm = aaDSA
       end>
-    HostName = 'localhost'
     KeyStorage = ScFileStorage
     AfterConnect = ScSSHClientAfterConnect
     BeforeConnect = ScSSHClientBeforeConnect
@@ -593,5 +666,11 @@ inherited SSHClientFrame: TSSHClientFrame
     Client = ScSSHClient
     Left = 40
     Top = 216
+  end
+  object OpenDialog: TOpenDialog
+    InitialDir = '.'
+    Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofEnableSizing]
+    Left = 60
+    Top = 220
   end
 end
